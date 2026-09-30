@@ -13,12 +13,15 @@ resource "time_sleep" "this" {
     custom            = join(",", var.create_delay_dependencies)
     oidc_provider_arn = var.oidc_provider_arn
   }
+
+  # Every add-on in this module is installed after the `pre_helm_releases`
+  depends_on = [helm_release.pre]
 }
 
 locals {
   account_id = data.aws_caller_identity.current.account_id
   partition  = data.aws_partition.current.partition
-  region     = data.aws_region.current.name
+  region     = data.aws_region.current.region
 
   # Threads the sleep resource into the module to make the dependency
   cluster_endpoint  = time_sleep.this.triggers["cluster_endpoint"]
